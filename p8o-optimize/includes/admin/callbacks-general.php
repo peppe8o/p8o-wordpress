@@ -1,26 +1,22 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-function p8o_optimize_general_section_callback() {
+function p8ooptimizegeneralsectioncallback() {
 	echo '<p>Global plugin settings, import/export, and uninstall cleanup.</p>';
 }
 
-function p8o_optimize_enabled_callback() {
-	$v = get_option( 'p8o_optimize_enabled', '1' );
-	?>
-	<label>
-		<input type="checkbox" name="p8o_optimize_enabled" value="1" <?php checked( $v, '1' ); ?>>
-		Enable all optimizations
-	</label>
-	<?php
+function p8ooptimizeenabledcallback() {
+	$v = get_option( 'p8ooptimizeenabled', '1' );
+	echo '<label>';
+	echo '<input type="checkbox" name="p8ooptimizeenabled" value="1" ' . checked( $v, '1', false ) . '>';
+	echo ' Enable all optimizations';
+	echo '</label>';
 }
 
-function p8o_optimize_cleanup_on_delete_callback() {
-	$v = get_option( 'p8o_optimize_cleanup_on_delete', '0' );
-	?>
-	<label>
-		<input type="checkbox" name="p8o_optimize_cleanup_on_delete" value="1" <?php checked( $v, '1' ); ?>>
-		Clean all data/options on plugin delete (uninstall)
-	</label>
-	<?php
+function p8ooptimizecleanupondeletecallback() {
+	$v = get_option( 'p8ooptimizecleanupondelete', '0' );
+	echo '<label>';
+	echo '<input type="checkbox" name="p8ooptimizecleanupondelete" value="1" ' . checked( $v, '1', false ) . '>';
+	echo ' Clean all data/options on plugin delete (uninstall)';
+	echo '</label>';
 }

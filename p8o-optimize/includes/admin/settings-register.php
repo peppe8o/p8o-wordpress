@@ -3,182 +3,178 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 add_action( 'admin_init', function () {
 
-	// General
-	register_setting( 'p8o_optimize_settings_general', 'p8o_optimize_enabled' );
-	register_setting( 'p8o_optimize_settings_general', 'p8o_optimize_cleanup_on_delete' );
+	/**
+	 * Register settings (option keys).
+	 */
+	register_setting( 'p8ooptimizesettingsgeneral', 'p8ooptimizeenabled' );
+	register_setting( 'p8ooptimizesettingsgeneral', 'p8ooptimizecleanupondelete' );
 
-	// CSS
-	register_setting( 'p8o_optimize_settings_css', 'p8o_css_resources' );
+	register_setting( 'p8ooptimizesettingscss', 'p8ocssresources' );
 
-	// JS
-	register_setting( 'p8o_optimize_settings_js', 'p8o_js_resources' );
-	register_setting( 'p8o_optimize_settings_js', 'p8o_external_js_hints' );
+	register_setting( 'p8ooptimizesettingsjs', 'p8ojsresources' );
+	register_setting( 'p8ooptimizesettingsjs', 'p8oexternaljshints' );
 
-	// Images
-	register_setting( 'p8o_optimize_settings_images', 'p8o_image_paths' );
-	register_setting( 'p8o_optimize_settings_images', 'p8o_images_cls' );
-	register_setting( 'p8o_optimize_settings_images', 'p8o_disable_wp_srcset_sizes' );
-	register_setting( 'p8o_optimize_settings_images', 'p8o_disable_wp_width_height' );
-	register_setting( 'p8o_optimize_settings_images', 'p8o_disable_wp_lazy_loading' );
+	register_setting( 'p8ooptimizesettingsimages', 'p8oimagepaths' );
+	register_setting( 'p8ooptimizesettingsimages', 'p8oimagescls' );
+	register_setting( 'p8ooptimizesettingsimages', 'p8odisablewpsrcsetsizes' );
+	register_setting( 'p8ooptimizesettingsimages', 'p8odisablewpwidthheight' );
+	register_setting( 'p8ooptimizesettingsimages', 'p8odisablewplazyloading' );
+	register_setting( 'p8ooptimizesettingsimages', 'p8oadclsrules' );
 
-	// Ads CLS
-	register_setting( 'p8o_optimize_settings_images', 'p8o_ad_cls_rules' );
-
-	/* ==============
-	 * General page
-	 * ============== */
+	/**
+	 * GENERAL tab
+	 */
 	$general_page = 'p8o-optimize-general';
 
 	add_settings_section(
-		'p8o_optimize_general_section',
+		'p8ooptimizegeneralsection',
 		'General',
-		'p8o_optimize_general_section_callback',
+		'p8ooptimizegeneralsectioncallback',
 		$general_page
 	);
 
 	add_settings_field(
-		'p8o_optimize_enabled',
+		'p8ooptimizeenabled',
 		'Enable plugin',
-		'p8o_optimize_enabled_callback',
+		'p8ooptimizeenabledcallback',
 		$general_page,
-		'p8o_optimize_general_section'
+		'p8ooptimizegeneralsection'
 	);
 
 	add_settings_field(
-		'p8o_optimize_cleanup_on_delete',
+		'p8ooptimizecleanupondelete',
 		'Cleanup on delete',
-		'p8o_optimize_cleanup_on_delete_callback',
+		'p8ooptimizecleanupondeletecallback',
 		$general_page,
-		'p8o_optimize_general_section'
+		'p8ooptimizegeneralsection'
 	);
 
-	/* ==============
-	 * CSS page
-	 * ============== */
+	/**
+	 * CSS tab
+	 */
 	$css_page = 'p8o-optimize-css';
 
 	add_settings_section(
-		'p8o_optimize_css_section',
+		'p8ooptimizecsssection',
 		'CSS Resources',
-		'p8o_optimize_css_section_callback',
+		'p8ooptimizecsssectioncallback',
 		$css_page
 	);
 
 	add_settings_field(
-		'p8o_css_resources',
+		'p8ocssresources',
 		'CSS Resources',
-		'p8o_css_resources_callback',
+		'p8ocssresourcescallback',
 		$css_page,
-		'p8o_optimize_css_section'
+		'p8ooptimizecsssection'
 	);
 
-	/* ==============
-	 * JS page
-	 * ============== */
+	/**
+	 * JS tab
+	 */
 	$js_page = 'p8o-optimize-js';
 
 	add_settings_section(
-		'p8o_optimize_js_section',
+		'p8ooptimizejssection',
 		'JS Resources',
-		'p8o_optimize_js_section_callback',
+		'p8ooptimizejssectioncallback',
 		$js_page
 	);
 
 	add_settings_field(
-		'p8o_js_resources',
+		'p8ojsresources',
 		'JS Resources',
-		'p8o_js_resources_callback',
+		'p8ojsresourcescallback',
 		$js_page,
-		'p8o_optimize_js_section'
+		'p8ooptimizejssection'
 	);
 
 	add_settings_section(
-		'p8o_optimize_external_js_section',
-		'External JS (Resource Hints)',
-		'p8o_optimize_external_js_section_callback',
+		'p8ooptimizeexternaljssection',
+		'External JS Resource Hints',
+		'p8ooptimizeexternaljssectioncallback',
 		$js_page
 	);
 
 	add_settings_field(
-		'p8o_external_js_hints',
+		'p8oexternaljshints',
 		'External scripts',
-		'p8o_external_js_hints_callback',
+		'p8oexternaljshintscallback',
 		$js_page,
-		'p8o_optimize_external_js_section'
+		'p8ooptimizeexternaljssection'
 	);
 
-	/* ==============
-	 * Images page
-	 * ============== */
+	/**
+	 * IMAGES tab
+	 */
 	$img_page = 'p8o-optimize-images';
 
 	add_settings_section(
-		'p8o_optimize_image_section',
+		'p8ooptimizeimagesection',
 		'Image Priority',
-		'p8o_optimize_image_section_callback',
+		'p8ooptimizeimagesectioncallback',
 		$img_page
 	);
 
 	add_settings_field(
-		'p8o_image_paths',
+		'p8oimagepaths',
 		'Image Paths',
-		'p8o_image_paths_callback',
+		'p8oimagepathscallback',
 		$img_page,
-		'p8o_optimize_image_section'
+		'p8ooptimizeimagesection'
 	);
 
 	add_settings_section(
-		'p8o_optimize_images_cls_section',
-		'Images: CLS',
-		'p8o_optimize_images_cls_section_callback',
+		'p8ooptimizeimagesclssection',
+		'Images CLS',
+		'p8ooptimizeimagesclssectioncallback',
 		$img_page
 	);
 
 	add_settings_field(
-		'p8o_images_cls',
+		'p8oimagescls',
 		'Prevent CLS (reserve space)',
-		'p8o_images_cls_callback',
+		'p8oimagesclscallback',
 		$img_page,
-		'p8o_optimize_images_cls_section'
+		'p8ooptimizeimagesclssection'
 	);
 
 	add_settings_field(
-		'p8o_disable_wp_srcset_sizes',
+		'p8odisablewpsrcsetsizes',
 		'Disable WP srcset/sizes',
-		'p8o_disable_wp_srcset_sizes_callback',
+		'p8odisablewpsrcsetsizescallback',
 		$img_page,
-		'p8o_optimize_images_cls_section'
+		'p8ooptimizeimagesclssection'
 	);
 
 	add_settings_field(
-		'p8o_disable_wp_width_height',
+		'p8odisablewpwidthheight',
 		'Disable WP width/height',
-		'p8o_disable_wp_width_height_callback',
+		'p8odisablewpwidthheightcallback',
 		$img_page,
-		'p8o_optimize_images_cls_section'
+		'p8ooptimizeimagesclssection'
 	);
 
 	add_settings_field(
-		'p8o_disable_wp_lazy_loading',
+		'p8odisablewplazyloading',
 		'Disable WP lazy-loading',
-		'p8o_disable_wp_lazy_loading_callback',
+		'p8odisablewplazyloadingcallback',
 		$img_page,
-		'p8o_optimize_images_cls_section'
+		'p8ooptimizeimagesclssection'
 	);
 
 	add_settings_section(
-		'p8o_optimize_ad_cls_section',
+		'p8ooptimizeadclssection',
 		'AD CLS fix',
-		'p8o_optimize_ad_cls_section_callback',
+		'p8ooptimizeadclssectioncallback',
 		$img_page
 	);
 
 	add_settings_field(
-		'p8o_ad_cls_rules',
+		'p8oadclsrules',
 		'Ad placeholders',
-		'p8o_ad_cls_rules_callback',
+		'p8oadclsrulescallback',
 		$img_page,
-		'p8o_optimize_ad_cls_section'
+		'p8ooptimizeadclssection'
 	);
-
-});
+} );

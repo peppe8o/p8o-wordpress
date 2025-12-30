@@ -2,92 +2,73 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * External JS (Resource Hints) field renderer.
- * - "Hints" controls <link rel="preconnect|dns-prefetch|preload"> output
- * - "Script loading" controls adding async/defer to the matching <script> tag
+ * Admin field for p8oexternaljshints (array of rows).
  *
- * Escaping: esc_url for URLs and esc_attr for attributes. [web:469]
+ * Row shape:
+ * - url  (string) full URL to script
+ * - hint (preconnect|preload|none)
+ * - attr (defer|async|none)
  */
-
-function p8o_external_js_hints_callback() {
-	$rows = get_option( 'p8o_external_js_hints', array() );
-	if ( ! is_array( $rows ) ) $rows = array();
+function p8oexternaljshintscallback() {
+	$hints = get_option( 'p8oexternaljshints', array() );
+	if ( ! is_array( $hints ) ) $hints = array();
 	?>
 	<div id="p8o-external-js-hints">
-		<?php foreach ( $rows as $index => $row ) :
-			$url      = isset( $row['url'] ) ? (string) $row['url'] : '';
-			$strategy = isset( $row['strategy'] ) ? (string) $row['strategy'] : 'none'; // preconnect|preload|none
-			$attr     = isset( $row['attr'] ) ? (string) $row['attr'] : 'none';         // defer|async|none
+		<?php foreach ( $hints as $index => $row ) :
+			$url  = isset($row['url']) ? (string) $row['url'] : '';
+			$hint = isset($row['hint']) ? (string) $row['hint'] : 'preconnect';
+			$attr = isset($row['attr']) ? (string) $row['attr'] : 'none';
 		?>
-		<div class="p8o-ext-js-row" style="display:flex;align-items:center;margin-bottom:10px;gap:14px;flex-wrap:wrap;">
-			<input type="url"
-				   name="p8o_external_js_hints[<?php echo esc_attr( $index ); ?>][url]"
-				   placeholder="https://example.com/script.js"
-				   value="<?php echo esc_attr( $url ); ?>"
-				   style="width:520px;">
+		<div class="p8o-external-js-row" style="display:flex;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;">
+			<input type="text" name="p8oexternaljshints[<?php echo esc_attr($index); ?>][url]" placeholder="https://example.com/script.js" value="<?php echo esc_attr($url); ?>" style="width:420px;">
 
-			<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-				<strong style="min-width:55px;display:inline-block;">Hints</strong>
-				<label><input type="radio" name="p8o_external_js_hints[<?php echo esc_attr( $index ); ?>][strategy]" value="preconnect" <?php checked( 'preconnect', $strategy ); ?>> Preconnect</label>
-				<label><input type="radio" name="p8o_external_js_hints[<?php echo esc_attr( $index ); ?>][strategy]" value="preload"    <?php checked( 'preload',    $strategy ); ?>> Preload</label>
-				<label><input type="radio" name="p8o_external_js_hints[<?php echo esc_attr( $index ); ?>][strategy]" value="none"       <?php checked( 'none',       $strategy ); ?>> None (no hint)</label>
-			</div>
+			<select name="p8oexternaljshints[<?php echo esc_attr($index); ?>][hint]">
+				<option value="preconnect" <?php selected( $hint, 'preconnect' ); ?>>preconnect</option>
+				<option value="preload" <?php selected( $hint, 'preload' ); ?>>preload</option>
+				<option value="none" <?php selected( $hint, 'none' ); ?>>none</option>
+			</select>
 
-			<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-				<strong style="min-width:105px;display:inline-block;">Script loading</strong>
-				<label><input type="radio" name="p8o_external_js_hints[<?php echo esc_attr( $index ); ?>][attr]" value="defer" <?php checked( 'defer', $attr ); ?>> Defer</label>
-				<label><input type="radio" name="p8o_external_js_hints[<?php echo esc_attr( $index ); ?>][attr]" value="async" <?php checked( 'async', $attr ); ?>> Async</label>
-				<label><input type="radio" name="p8o_external_js_hints[<?php echo esc_attr( $index ); ?>][attr]" value="none"  <?php checked( 'none',  $attr ); ?>> Normal</label>
-			</div>
+			<select name="p8oexternaljshints[<?php echo esc_attr($index); ?>][attr]">
+				<option value="none" <?php selected( $attr, 'none' ); ?>>none</option>
+				<option value="defer" <?php selected( $attr, 'defer' ); ?>>defer</option>
+				<option value="async" <?php selected( $attr, 'async' ); ?>>async</option>
+			</select>
 
-			<button type="button" class="button remove-ext-js">Remove</button>
+			<button type="button" class="button remove-external-js-row">Remove</button>
 		</div>
 		<?php endforeach; ?>
 	</div>
 
-	<button type="button" class="button" id="add-ext-js">Add external script</button>
+	<button type="button" class="button" id="add-external-js-row">Add external script</button>
 
 	<script>
 	(function(){
 		const container = document.getElementById('p8o-external-js-hints');
-		const addBtn = document.getElementById('add-ext-js');
-
-		if (!container || !addBtn) return;
-
-		addBtn.addEventListener('click', function() {
-			const index = container.querySelectorAll('.p8o-ext-js-row').length;
+		document.getElementById('add-external-js-row').addEventListener('click', function() {
+			const index = container.children.length;
 			const div = document.createElement('div');
-			div.className = 'p8o-ext-js-row';
-			div.style.cssText = 'display:flex;align-items:center;margin-bottom:10px;gap:14px;flex-wrap:wrap;';
+			div.className = 'p8o-external-js-row';
+			div.style.cssText = 'display:flex;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;';
 			div.innerHTML = `
-				<input type="url"
-					   name="p8o_external_js_hints[${index}][url]"
-					   placeholder="https://example.com/script.js"
-					   style="width:520px;">
-
-				<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-					<strong style="min-width:55px;display:inline-block;">Hints</strong>
-					<label><input type="radio" name="p8o_external_js_hints[${index}][strategy]" value="preconnect"> Preconnect</label>
-					<label><input type="radio" name="p8o_external_js_hints[${index}][strategy]" value="preload"> Preload</label>
-					<label><input type="radio" name="p8o_external_js_hints[${index}][strategy]" value="none" checked> None (no hint)</label>
-				</div>
-
-				<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-					<strong style="min-width:105px;display:inline-block;">Script loading</strong>
-					<label><input type="radio" name="p8o_external_js_hints[${index}][attr]" value="defer"> Defer</label>
-					<label><input type="radio" name="p8o_external_js_hints[${index}][attr]" value="async"> Async</label>
-					<label><input type="radio" name="p8o_external_js_hints[${index}][attr]" value="none" checked> Normal</label>
-				</div>
-
-				<button type="button" class="button remove-ext-js">Remove</button>
+				<input type="text" name="p8oexternaljshints[${index}][url]" placeholder="https://example.com/script.js" style="width:420px;">
+				<select name="p8oexternaljshints[${index}][hint]">
+					<option value="preconnect" selected>preconnect</option>
+					<option value="preload">preload</option>
+					<option value="none">none</option>
+				</select>
+				<select name="p8oexternaljshints[${index}][attr]">
+					<option value="none" selected>none</option>
+					<option value="defer">defer</option>
+					<option value="async">async</option>
+				</select>
+				<button type="button" class="button remove-external-js-row">Remove</button>
 			`;
 			container.appendChild(div);
 		});
 
 		document.addEventListener('click', function(e) {
-			if (e.target && e.target.classList.contains('remove-ext-js')) {
-				const row = e.target.closest('.p8o-ext-js-row');
-				if (row) row.remove();
+			if (e.target && e.target.classList.contains('remove-external-js-row')) {
+				e.target.closest('.p8o-external-js-row').remove();
 			}
 		});
 	})();

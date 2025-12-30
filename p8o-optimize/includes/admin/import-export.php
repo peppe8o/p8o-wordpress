@@ -1,50 +1,40 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/**
- * Export handler via admin-post.php.
- */
-add_action( 'admin_post_p8o_optimize_export_json', function () {
+// Export handler via admin-post.php.
+add_action( 'admin_post_p8ooptimizeexportjson', function () {
 	if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Forbidden' );
-	check_admin_referer( 'p8o_optimize_export_json' );
-	p8o_optimize_export_json_and_exit();
-});
+	check_admin_referer( 'p8ooptimizeexportjson' );
+	p8ooptimizeexportjsonandexit();
+} );
 
-function p8o_optimize_get_all_option_names() {
+function p8ooptimizegetalloptionnames() {
 	return array(
-		'p8o_optimize_enabled',
-		'p8o_optimize_cleanup_on_delete',
-
-		'p8o_css_resources',
-
-		'p8o_js_resources',
-		'p8o_external_js_hints',
-
-		'p8o_image_paths',
-		'p8o_images_cls',
-		'p8o_disable_wp_srcset_sizes',
-		'p8o_disable_wp_width_height',
-		'p8o_disable_wp_lazy_loading',
-
-		'p8o_ad_cls_rules',
+		'p8ooptimizeenabled',
+		'p8ooptimizecleanupondelete',
+		'p8ocssresources',
+		'p8ojsresources',
+		'p8oexternaljshints',
+		'p8oimagepaths',
+		'p8oimagescls',
+		'p8odisablewpsrcsetsizes',
+		'p8odisablewpwidthheight',
+		'p8odisablewplazyloading',
+		'p8oadclsrules',
 	);
 }
 
-function p8o_optimize_export_json_and_exit() {
-	if ( headers_sent() ) {
-		wp_die( 'Cannot export: headers already sent.' );
-	}
+function p8ooptimizeexportjsonandexit() {
+	if ( headers_sent() ) wp_die( 'Cannot export: headers already sent.' );
+	while ( ob_get_level() ) { ob_end_clean(); }
 
-	while ( ob_get_level() ) {
-		ob_end_clean();
-	}
+	$keys = p8ooptimizegetalloptionnames();
 
-	$keys = p8o_optimize_get_all_option_names();
 	$data = array(
-		'format'      => 'p8o-optimize-settings',
-		'version'     => '1',
+		'format' => 'p8o-optimize-settings',
+		'version' => '1',
 		'exported_at' => gmdate( 'c' ),
-		'options'     => array(),
+		'options' => array(),
 	);
 
 	foreach ( $keys as $k ) {
@@ -62,31 +52,33 @@ function p8o_optimize_export_json_and_exit() {
 	exit;
 }
 
-function p8o_optimize_handle_import_only() {
+function p8ooptimizehandleimportonly() {
 	if ( ! current_user_can( 'manage_options' ) ) return;
-	if ( empty( $_POST['p8o_optimize_action'] ) ) return;
+	if ( empty( $_POST['p8ooptimizeaction'] ) ) return;
 
-	$action = sanitize_key( (string) $_POST['p8o_optimize_action'] );
-	if ( $action !== 'import_json' ) return;
+	$action = sanitize_key( (string) $_POST['p8ooptimizeaction'] );
+	if ( $action !== 'importjson' ) return;
 
-	check_admin_referer( 'p8o_optimize_import_json', 'p8o_optimize_import_nonce' );
-	p8o_optimize_import_json();
+	check_admin_referer( 'p8ooptimizeimportjson', 'p8ooptimizeimportnonce' );
+	p8ooptimizeimportjson();
 }
 
-function p8o_optimize_import_json() {
-	if ( empty( $_FILES['p8o_optimize_json']['tmp_name'] ) ) {
+function p8ooptimizeimportjson() {
+	if ( empty( $_FILES['p8ooptimizejson']['tmp_name'] ) ) {
 		add_settings_error( 'p8o-optimize', 'p8o-import-missing', 'JSON file missing.', 'error' );
 		return;
 	}
 
-	$tmp = $_FILES['p8o_optimize_json']['tmp_name'];
+	$tmp = $_FILES['p8ooptimizejson']['tmp_name'];
 	$raw = file_get_contents( $tmp );
+
 	if ( ! is_string( $raw ) || $raw === '' ) {
 		add_settings_error( 'p8o-optimize', 'p8o-import-open', 'Unable to read uploaded JSON.', 'error' );
 		return;
 	}
 
 	$payload = json_decode( $raw, true );
+
 	if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $payload ) ) {
 		add_settings_error( 'p8o-optimize', 'p8o-import-json', 'Invalid JSON file.', 'error' );
 		return;
@@ -97,13 +89,12 @@ function p8o_optimize_import_json() {
 		return;
 	}
 
-	$allowed = array_flip( p8o_optimize_get_all_option_names() );
+	$allowed = array_flip( p8ooptimizegetalloptionnames() );
 
 	$updated = 0;
 	foreach ( $payload['options'] as $name => $value ) {
 		$name = (string) $name;
 		if ( ! isset( $allowed[ $name ] ) ) continue;
-
 		update_option( $name, $value );
 		$updated++;
 	}
